@@ -52,7 +52,7 @@ class SimpleReactValidator{
     }
   }
 
-  message(field, value, testString, customClass, customErrors = {}){
+  message(field, value, testString, customClass, customErrors = {}, wrapper){
     this.fields[field] = true;
     var tests = testString.split('|');
     var rule, options, message;
@@ -61,19 +61,41 @@ class SimpleReactValidator{
       value = this._valueOrEmptyString(value);
       rule = this._getRule(tests[i]);
       options = this._getOptions(tests[i]);
+
       // test if the value passes validation
       if(this.rules[rule].rule(value, options) === false){
         this.fields[field] = false;
         if(this.messagesShown){
           message = customErrors[rule] || this.rules[rule].message.replace(':attribute', field.replace(/_/g, ' '));
           if(options.length > 0 && this.rules[rule].hasOwnProperty('messageReplace')){
-            return this._reactErrorElement(this.rules[rule].messageReplace(message, options));
+            return this._wrapError(this._reactErrorElement(this.rules[rule].messageReplace(message, options)), wrapper)
           } else {
-            return this._reactErrorElement(message, customClass);
+            return this._wrapError(this._reactErrorElement(message, customClass), wrapper)
           }
         }
       }
+
+      if (wrapper) {
+        return wrapper()
+      }
     }
+  }
+
+  _wrapError(error, wrapper){
+    var Output = function Output(props) {
+      return React.createElement(
+        'div',
+        null,
+        React.createElement(
+          'div',
+          {className: 'awesome-error'},
+          props.children
+        ),
+        props.error
+      );
+    };
+
+    return wrapper ? Output({children: wrapper(), error}) : error
   }
 
   // Private Methods

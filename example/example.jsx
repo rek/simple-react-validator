@@ -153,6 +153,11 @@
             {this.validator.message('required', this.state.required, 'required')}
           </div>
 
+          <div className="form-group">
+            <label>wrapped</label>
+            {this.validator.message('wrapped', this.state.wrapped, 'required', false, false, () => <input className="form-control" name="wrapped" value={this.state.wrapped} onChange={this.setStateFromInput} />)}
+          </div>
+
           <button className="btn btn-primary" onClick={this.submitForm}>Submit</button>
         </div>
       </div>
